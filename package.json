@@ -4,16 +4,22 @@
   "description": "## Initialisation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": ["charts", "google sheets", "gsheets"],
-  "author": "Toni Tassani",
-  "license": "0BSC",
-  "repository": "github:atassani/charts_gsheets",
-  "scripts": {
+    "preinstall": "rimraf build && mkdir build && json2module package.json > build/package.js && rollup -c -f umd -n radar -o build/radar.js -- src/index.js && uglifyjs build/radar.js -c negate_iife=false -m -o build/radar.min.js",
     "start": "browser-sync start --directory --server --port 8080 --files '*.css, **/*.html, build/**/*.js'"
   },
+  "keywords": [
+    "charts",
+    "google sheets",
+    "gsheets"
+  ],
+  "author": "Toni Tassani",
+  "license": "0BSD",
+  "repository": "github:atassani/charts_gsheets",
   "devDependencies": {
-    "browser-sync": "^2.23.6"
+    "browser-sync": "^2.23.6",
+    "json2module": "0.0.3",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.56.2",
+    "uglifyjs": "^2.4.11"
   }
 }
