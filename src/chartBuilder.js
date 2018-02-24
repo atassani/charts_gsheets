@@ -280,17 +280,14 @@ export function paintPoints(config, teams) {
   drawTeamNameAndDate(teamName, theTeams);
   drawTeamsSelect(teamName, theTeams);
   d3.queue()
-    // TODO
-    //.defer(d3.json, config.questionsjson)
+    .defer(d3.json, config.questionsjson)
     .defer(function(callback) { callback(null, teamName); })
     .await(loadQuestionsAndDrawTeam);
 }
 
-// TODO
-//function loadQuestionsAndDrawTeam(error, questions, teamName) {
-function loadQuestionsAndDrawTeam(error, teamName) {
-  // TODO
-  //theQuestions = questions;
+
+function loadQuestionsAndDrawTeam(error, questions, teamName) {
+  theQuestions = questions;
   drawTeamPoints(teamName);
   // TODO
   //radar.writeFormLink(teamName, theTeams, theQuestions);

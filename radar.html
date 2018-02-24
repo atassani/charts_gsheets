@@ -63,7 +63,9 @@
         range: 'RadarReady!A1:BI',
       }).then(function(response) {
         var config = {
+          questionsjson: "data/questions.json",
           params: {
+            teamName: radar.getParameterByName("teamName")
           }
         };
         var range = response.result;

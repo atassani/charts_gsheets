@@ -8,5 +8,5 @@ export {
   default as drawChart,
   paintPoints as paintPoints
 } from "../src/chartBuilder";
-
+export {default as getParameterByName} from "../src/params";
 export {random as random} from "../src/random";
