@@ -1,0 +1,19 @@
+{
+  "name": "charts_gsheets",
+  "version": "1.0.0",
+  "description": "## Initialisation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["charts", "google sheets", "gsheets"],
+  "author": "Toni Tassani",
+  "license": "0BSC",
+  "repository": "github:atassani/charts_gsheets",
+  "scripts": {
+    "start": "browser-sync start --directory --server --port 8080 --files '*.css, **/*.html, build/**/*.js'"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.23.6"
+  }
+}
