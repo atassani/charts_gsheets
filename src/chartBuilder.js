@@ -10,7 +10,7 @@ var theExternalPie,
     externalArc,
     internalPie;
 
-export default function drawChart(config) {
+export default function drawChart() {
   drawPies();
   drawAreaTitles();
   drawLevelNumbers();
@@ -192,4 +192,245 @@ function drawLevelNumbers() {
       .attr("x", x0)
       .attr("y", y0)
       .text("0");
+}
+
+// ------------------------------------------------------------------------
+
+var colorFunction = d3.scaleOrdinal(d3.schemeCategory10);
+
+// https://github.com/d3/d3-time-format/blob/master/README.md#timeFormat
+var dateFormat = d3.timeFormat("%a %b %e %Y %H:%M");
+
+var theTeams;
+var theQuestions;
+
+
+function generatePointsPerArea(area, level, questions) {
+  var internalInnerRadius = 40,
+      internalOuterRadius = (radius / 3) - 10 - 10,
+      mediumInnerRadius =   (radius / 3) - 10 + 28,
+      mediumOuterRadius =   (radius / 3) * 2 - 10 - 28,
+      externalInnerRadius = (radius / 3) * 2 - 10 + 28,
+      externalOuterRadius = (radius / 3) * 3 - 10 - 28;
+  var index = Array.from(radar.areas.values()).indexOf(area);
+  var configArea = {
+    angleScale: d3.scaleLinear()
+                  .domain([0, 1])
+                  .range([internalPie[index].startAngle, internalPie[index].endAngle]),
+    radiusScale: new Map([
+      ["2", d3.scaleLinear().domain([0, 1]).range([internalInnerRadius, internalOuterRadius])],
+      ["1", d3.scaleLinear().domain([0, 1]).range([mediumInnerRadius,   mediumOuterRadius])],
+      ["0", d3.scaleLinear().domain([0, 1]).range([externalInnerRadius, externalOuterRadius])]
+    ])
+  };
+  var points = [];
+
+  if (questions) {
+    questions.forEach( function(question) {
+      var randomAngle = radar.random();
+      var randomRadius = radar.random();
+      var theColor = colorFunction(index);
+      if (level == 0) theColor = d3.color(theColor).brighter(1);
+      if (level == 2) theColor = d3.color(theColor).darker(1);
+      var point = new Point(
+        radar.reverseAreas.get(area),
+        question.value,
+        theColor,
+        question.trend,
+        Math.sin(configArea.angleScale(randomAngle))
+          * configArea.radiusScale.get(level+'')(randomRadius)
+          + (randomAngle > 0.5 ? -1 : 1)*Math.cos(configArea.angleScale(randomAngle))*10,
+        -Math.cos(configArea.angleScale(randomAngle))
+          * configArea.radiusScale.get(level+'')(randomRadius)
+          + (randomAngle > 0.5 ? -1 : 1)*Math.sin(configArea.angleScale(randomAngle))*10
+      );
+
+      points.push( point );
+    });
+  }
+  return points;
+}
+
+function Point(area, number, theColor, trend, x, y) {
+  this.area = area;
+  this.number = number;
+  this.color = theColor;
+  this.trend = trend;
+  this.x = x;
+  this.y = y;
+}
+
+function generatePoints(teamName, teams) {
+  var teamData = teams[teamName];
+  var teamAreasArray = Object.keys(teamData.Areas);
+  var points = [];
+  for (var i = 0; i < teamAreasArray.length; i++) {
+    var area = teamAreasArray[i];
+    for (var level = 0; level <= 2; level++) {
+      points = points.concat(generatePointsPerArea(area, level, teamData.Areas[area][level]));
+    }
+  }
+  return points;
+}
+
+export function paintPoints(config, teams) {
+  theTeams = teams;
+  // Team Name passed as parameter, or first team
+  var teamName = config.params.teamName ? config.params.teamName : Object.keys(teams)[0];
+  drawTeamNameAndDate(teamName, theTeams);
+  drawTeamsSelect(teamName, theTeams);
+  d3.queue()
+    // TODO
+    //.defer(d3.json, config.questionsjson)
+    .defer(function(callback) { callback(null, teamName); })
+    .await(loadQuestionsAndDrawTeam);
+}
+
+// TODO
+//function loadQuestionsAndDrawTeam(error, questions, teamName) {
+function loadQuestionsAndDrawTeam(error, teamName) {
+  // TODO
+  //theQuestions = questions;
+  drawTeamPoints(teamName);
+  // TODO
+  //radar.writeFormLink(teamName, theTeams, theQuestions);
+}
+
+function drawTeamPoints(teamName) {
+  var points = generatePoints(teamName, theTeams);
+  drawPoints(points);
+}
+
+function drawTeamNameAndDate(teamName, teams) {
+  document.getElementById("teamName").innerText=teamName;
+  document.getElementById("date").innerText=dateFormat(teams[teamName].Date);
+  if (teams[teamName].DatePrevious) {
+    document.getElementById("date").innerText += ' (previous ' + dateFormat(teams[teamName].DatePrevious) + ')'
+  }
+}
+
+function drawTeamsSelect(teamName, teams) {
+  var dropDown = d3.select('#selectTeams')
+    .append("select")
+    .attr("id",    "dropDownTeams")
+    .attr("class", "dropDownTeams")
+    .on('change', onChange);
+  dropDown.selectAll("option")
+    .data(Object.keys(teams))
+    .enter()
+    .append("option")
+      .property("selected", function(d) { return d === teamName; } )
+      .text(function(d) { return d; });
+}
+
+function removeCircles() {
+  d3.selectAll("#dataPoints").remove();
+}
+
+function onChange() {
+  var selectedTeam = d3.select('select').property('value');
+  removeCircles();
+  radar.randomSeed = 1;
+  drawTeamNameAndDate(selectedTeam, theTeams);
+  drawTeamPoints(selectedTeam);
+  //TODO
+  //radar.writeFormLink(selectedTeam, theTeams, theQuestions);
+}
+
+function drawPoints(points) {
+  d3.select("svg>g")
+    .append("g")
+    .attr("id", "dataPoints");
+
+  drawTrendUpDataPoints(points);
+  drawTrendDownDataPoints(points);
+  drawTrendEqualDataPoints(points);
+}
+
+function drawTrendEqualDataPoints(points) {
+  var enterData = drawDataPointsGroup(points, "");
+  drawCircle(enterData);
+  drawDataPointsText(enterData);
+}
+
+function drawTrendUpDataPoints(points) {
+  var enterData = drawDataPointsGroup(points, "U");
+  drawTriangle(enterData, "90");
+  drawDataPointsText(enterData);
+}
+
+function drawTrendDownDataPoints(points) {
+  var enterData = drawDataPointsGroup(points, "D");
+  drawTriangle(enterData, "-90");
+  drawDataPointsText(enterData);
+}
+
+function drawDataPointsGroup(points, trend) {
+  return d3.select("#dataPoints")
+    .selectAll("g")
+    .data(
+        points.filter(function(d) { return d.trend == trend }),
+        function(d) { return "dataPoint" + d.area + d.number } // Key function
+    )
+    .enter()
+    .append("g")
+    .attr("id", function(d, key) { return key })
+    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")" })
+    .on('mouseover', function(d) { questionShow(d.area, d.number); })
+    .on('mouseout', questionHide);
+}
+
+function drawTriangle(enterData, rotation) {
+  var triangle = d3.symbol().type(d3.symbolTriangle).size(200);
+  enterData
+    .append('path')
+    .attr('d', triangle)
+    .attr("transform", "rotate(" + rotation + ")")
+    .attr('fill', function(d) { return d.color })
+    .attr("stroke", function(d) { return d3.color(d.color).darker(0.5) })
+    .attr('stroke-width', 3);
+}
+
+function drawCircle(enterData) {
+  enterData
+    .append("circle")
+    .attr("r", "8px")
+    .attr("fill", function(d) { return d.color })
+    .attr("stroke", function(d) { return d3.color(d.color).darker(0.5) })
+    .attr('stroke-width', 3);
+}
+
+function drawDataPointsText(enterData) {
+  enterData
+    .append("text")
+    .attr("dx", function(d) { return d.number >= 10 ? "-0.66em" : "-0.33em"})
+    .attr("dy", "0.33em")
+    .attr("class", "numbers")
+    .attr("transform", "rotate(90)")
+    .text(function(d, i) { return d.number });
+}
+
+function questionShow(area, number) {
+  var questionDiv = d3.select("#questions");
+  var question = theQuestions[area+number];
+  questionDiv
+    .transition()
+    .duration(200)
+    .style("opacity", .9);
+
+  questionDiv.html(
+        "<strong>" + question.question + "</strong><br/>" +
+        question.answer0 + "<br/>" +
+        question.answer1 + "<br/>" +
+        question.answer2
+      )
+      .style("left", (d3.event.pageX + 14) + "px")
+      .style("top", (d3.event.pageY - 25) + "px");
+}
+
+function questionHide() {
+  d3.select("#questions")
+    .transition()
+    .duration(500)
+    .style("opacity", 0);
 }

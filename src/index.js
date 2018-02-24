@@ -6,5 +6,7 @@ export {
 } from "../src/dataLoader";
 export {
   default as drawChart,
+  paintPoints as paintPoints
 } from "../src/chartBuilder";
+
 export {random as random} from "../src/random";

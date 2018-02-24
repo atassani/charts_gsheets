@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+
 var areasArray = [["V", "Visualise"], ["W", "Limit WIP"], ["F", "Manage Flow"], ["P", "Explicit Policies"], ["L", "Feedback loops"], ["I", "Improve"], ["E", "Effects"]];
 var reverseAreasArray = areasArray.map(function(f) { return [f[1], f[0]];});
 export var areas =        new Map(areasArray);
@@ -12,19 +14,20 @@ export default function loadData(config, range) {
   if (config === undefined) config = {};
 
   var teamsPerQuestions = {};
-  var pattern = /(.)(.)(..)/;
+  var pattern = /\((.)(.)(..)/;
   var previousTeam;
-  for (var i = 0; i < range.values.length(); i++) {
+  for (var i = 1; i < range.values.length; i++) {
     var row = range.values[i];
     var theDate = row[0];
     var theTeam = row[1];
     teamsPerQuestions[theTeam] = teamsPerQuestions[theTeam] || {};
+    var dateParse = d3.timeParse("%d/%m/%Y %H:%M:%S");
     if (theTeam != previousTeam) {
-      teamsPerQuestions[theTeam]['Date'] = theDate;
+      teamsPerQuestions[theTeam]['Date'] = dateParse(theDate);
     } else {
-      teamsPerQuestions[theTeam]['DatePrevious'] = theDate;
+      teamsPerQuestions[theTeam]['DatePrevious'] = dateParse(theDate);
     }
-    for (var j = 2; j < row.length(); j++) {
+    for (var j = 2; j < row.length; j++) {
       var patternExec = pattern.exec(range.values[0][j]);
       if (patternExec) {
         var theArea = areas.get(patternExec[1]);
@@ -55,7 +58,8 @@ export default function loadData(config, range) {
   }
   var teams = teamsPerQuestionToTeamsPerLevel(teamsPerQuestions);
 
-  radar.drawChart(config, teams);
+  radar.drawChart();
+  radar.paintPoints(config, teams);
 }
 
 function teamsPerQuestionToTeamsPerLevel(teamsPerQuestions) {
