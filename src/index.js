@@ -1,4 +1,10 @@
 export {version} from "../build/package";
-export {default as drawChart,
-        areas as areas,
-        reverseAreas as reverseAreas} from "../src/chartBuilder";
+export {
+  default as loadData,
+  areas as areas,
+  reverseAreas as reverseAreas
+} from "../src/dataLoader";
+export {
+  default as drawChart,
+} from "../src/chartBuilder";
+export {random as random} from "../src/random";

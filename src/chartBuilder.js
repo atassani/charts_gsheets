@@ -10,14 +10,6 @@ var theExternalPie,
     externalArc,
     internalPie;
 
-export var areas = new Map([["V", "Visualise"], ["W", "Limit WIP"], ["F", "Manage Flow"], ["P", "Explicit Policies"], ["L", "Feedback loops"], ["I", "Improve"], ["E", "Effects"]]);
-export var reverseAreas = new Map([["Visualise", "V"], ["Limit WIP", "W"], ["Manage Flow", "F"], ["Explicit Policies", "P"], ["Feedback loops", "L"], ["Improve", "I"], ["Effects", "E"]]);
-
-var seed = 1;
-function random() {
-  var x = Math.sin(seed++) * 10000;
-  return x - Math.floor(x);
-}
 export default function drawChart(config) {
   drawPies();
   drawAreaTitles();
