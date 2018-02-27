@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "preinstall": "rimraf build && mkdir build && json2module package.json > build/package.js && rollup -c -f umd -n radar -o build/radar.js -- src/index.js && uglifyjs build/radar.js -c negate_iife=false -m -o build/radar.min.js",
+    "test": "tape 'test/**/*-test.js'",
     "start": "browser-sync start --directory --server --port 8080 --files '*.css, **/*.html, build/**/*.js'"
   },
   "keywords": [
@@ -20,6 +21,7 @@
     "json2module": "0.0.3",
     "rimraf": "^2.6.2",
     "rollup": "^0.56.2",
+    "tape": "^4.7.0",
     "uglifyjs": "^2.4.11"
   }
 }
