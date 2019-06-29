@@ -4,9 +4,9 @@
   "description": "## Initialisation",
   "main": "index.js",
   "scripts": {
-    "preinstall": "rimraf build && mkdir build && json2module package.json > build/package.js && rollup -c -f umd -n radar -o build/radar.js -- src/index.js && uglifyjs build/radar.js -c negate_iife=false -m -o build/radar.min.js",
+    "install": "rimraf build && mkdir build && json2module package.json > build/package.js && rollup -c -f umd -n radar -o build/radar.js -- src/index.js && uglifyjs build/radar.js -c negate_iife=false -m -o build/radar.min.js",
     "test": "tape 'test/**/*-test.js'",
-    "start": "browser-sync start --directory --server --port 8080 --files '*.css, **/*.html, build/**/*.js'"
+    "start": "browser-sync start --directory --server --port 8080 --files '*.css, **/*.html, build/**/*.js' --start-path radar.html?teamName=Transformers"
   },
   "keywords": [
     "charts",
@@ -16,7 +16,7 @@
   "author": "Toni Tassani",
   "license": "0BSD",
   "repository": "github:atassani/charts_gsheets",
-  "dependencies": {
+  "devDependencies": {
     "browser-sync": "^2.26.7",
     "json2module": "0.0.3",
     "rimraf": "^2.6.2",
