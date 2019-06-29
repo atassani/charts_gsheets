@@ -300,9 +300,9 @@ function drawTeamPoints(teamName) {
 
 function drawTeamNameAndDate(teamName, teams) {
   document.getElementById("teamName").innerText=teamName;
-  document.getElementById("date").innerText=dateFormat(teams[teamName].Date);
+  document.getElementById("date").innerText=dateFormat(new Date(teams[teamName].Date));
   if (teams[teamName].DatePrevious) {
-    document.getElementById("date").innerText += ' (previous ' + dateFormat(teams[teamName].DatePrevious) + ')'
+    document.getElementById("date").innerText += ' (previous ' + dateFormat(new Date(teams[teamName].DatePrevious)) + ')'
   }
 }
 
