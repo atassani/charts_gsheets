@@ -16,12 +16,12 @@
   "author": "Toni Tassani",
   "license": "0BSD",
   "repository": "github:atassani/charts_gsheets",
-  "devDependencies": {
-    "browser-sync": "^2.23.6",
+  "dependencies": {
+    "browser-sync": "^2.26.7",
     "json2module": "0.0.3",
     "rimraf": "^2.6.2",
     "rollup": "^0.56.2",
     "tape": "^4.7.0",
-    "uglifyjs": "^2.4.11"
+    "uglify-js": "^3.6.0"
   }
 }
