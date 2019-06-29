@@ -1,6 +1,6 @@
 var test = require("tape"),
-    kansas = require("..");
-    ;
+
+    kansas = require("../build/radar.js");
 
   var data1 = {
     getNumberOfColumns: function() { return  61; },
