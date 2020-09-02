@@ -9,6 +9,6 @@
   "author": "Toni Tassani <atassani@gmail.com>",
   "license": "0BSD",
   "dependencies": {
-    "googleapis": "^19.0.0"
+    "googleapis": "^39.1.0"
   }
 }
